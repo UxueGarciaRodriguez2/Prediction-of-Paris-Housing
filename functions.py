@@ -41,3 +41,9 @@ def boxplot_outliers(data, numeric_columns, n_cols=3):
     
     plt.tight_layout()  # Ajuste para que no se superpongan
     plt.show()
+
+
+#MAPE
+def mean_absolute_percentage_error(y_true, y_pred):
+    """Calcula el MAPE: Mean Absolute Percentage Error."""
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
