@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 class NeuralNet:
-    def __init__(self, layers, activation="relu", lr=0.001, momentum=0.9, validation_split=0.2):
+    def __init__(self, layers, activation="relu", lr=0.001, momentum=0.9, validation_split=0.2,  l2=0, dropout_rate=0):
         """
         Constructor de la clase NeuralNet.
         
@@ -19,6 +19,11 @@ class NeuralNet:
         self.fact = activation  
         self.validation_split = validation_split
 
+        ## Regularizations
+        self.l2 = l2  
+        self.dropout_rate = dropout_rate
+
+
         self.xi = []
         for lay in range(self.L):
             self.xi.append(np.zeros(layers[lay]))
@@ -28,21 +33,20 @@ class NeuralNet:
         #     self.w[l] = np.random.randn(self.n[l], self.n[l-1]) * np.sqrt(2 / self.n[l-1])
 
 
-        # self.w = [None] * self.L  # Lista para los pesos
-        # for l in range(1, self.L):
-        #     self.w[l] = np.random.normal(0, 0.2, (self.n[l], self.n[l-1]))
-
         self.w = [None] * self.L  # Lista para los pesos
         for l in range(1, self.L):
-            self.w[l] = np.random.randn(self.n[l], self.n[l-1]) *0.01
+            self.w[l] = np.random.normal(0, 0.1, (self.n[l], self.n[l-1]))
+
+        # self.w = [None] * self.L  # Lista para los pesos
+        # for l in range(1, self.L):
+        #     self.w[l] = np.random.randn(self.n[l], self.n[l-1]) *0.1
 
         # self.w = []
         # self.w.append(np.zeros((1, 1)))
         # for lay in range(1, self.L):
         #     self.w.append(np.zeros((layers[lay], layers[lay - 1])))
 
-        #self.w = [None] + [np.random.rand(layers[i], layers[i-1]) - 0.5 for i in range(1, self.L)]  # Pesos
-
+        #self.w = [None] + [np.random.randn(layers[i], layers[i-1]) * np.sqrt(1 / layers[i-1]) for i in range(1, self.L)]
 
         self.theta = [np.random.randn(self.n[l]) * 0.01 for l in range(1, self.L)]  # Umbrales (sin incluir capa de entrada)
         self.d_w = [None] + [np.zeros((layers[i], layers[i-1])) for i in range(1, self.L)]  # Gradientes de pesos
@@ -145,14 +149,20 @@ class NeuralNet:
             h = self.w[l] @ self.xi[l-1] - self.theta[l-1]
             #print(f"Layer {l}: h = {h}")
             
-            # Aplicar función de activación: ξ^(ℓ) = g(h^(ℓ))
-            self.xi[l] = self.activation(h, output_layer=(l == self.L - 1)) 
-            #print(f"Layer {l}: activations = {self.xi[l]}")
+            # Aplicar función de activación: ξ^(ℓ) = g(h^(ℓ)) with dropout
+            drop = self.activation(h, output_layer=(l == self.L - 1))
+            if l != self.L - 1 and self.dropout_rate > 0:  # Aplicar dropout en capas ocultas
+                dropout_mask = (np.random.rand(*drop.shape) > self.dropout_rate).astype(float)
+                drop *= dropout_mask  # Apagar neuronas
+                drop /= (1 - self.dropout_rate)
+
+            self.xi[l] = drop
+
         
         # 3. Retornar la salida de la red: ξ^(L) (última capa)
         return self.xi[-1]
     
-    def backward_propagation(self, x, y, loss):
+    def backward_propagation(self, x, y):
         """
         Retropropagación: Calcula los gradientes y ajusta pesos y umbrales.
         """
@@ -160,7 +170,7 @@ class NeuralNet:
         o = self.forward_propagation(x)
         
         # Inicializar delta en la capa de salida
-        delta = [(o - y) * self.activation_derivative(o)]
+        delta = [(o - y) * self.activation_derivative(self.xi[-1])]
         
         # Calcular deltas para capas ocultas
         for l in range(self.L - 2, 0, -1):  # Desde capa L-1 hacia 1
@@ -168,12 +178,13 @@ class NeuralNet:
             delta.insert(0, z * self.activation_derivative(self.xi[l]))
         
         # Definir un valor para el clipping de los gradientes
-        grad_clip_value = 1  # Ajusta según sea necesario
+        grad_clip_value = 5  # Ajusta según sea necesario
         
         # Actualizar pesos y umbrales
         for l in range(1, self.L):
             # Gradiente de pesos (w)
-            self.d_w[l] = -self.lr * delta[l-1][:, None] @ self.xi[l-1][None, :] + self.momentum * self.d_w_prev[l]
+            l2_penalty = self.l2 * self.w[l]
+            self.d_w[l] = -self.lr * (delta[l-1][:, None] @ self.xi[l-1][None, :] + l2_penalty) + self.momentum * self.d_w_prev[l]
             
             # Clipping de gradientes para evitar valores extremos
             #self.d_w[l] = np.clip(self.d_w[l], -grad_clip_value, grad_clip_value)
@@ -220,7 +231,7 @@ class NeuralNet:
             for i in indices:
                 y_pred = self.forward_propagation(X_train[i])
                 loss = 0.5 * np.sum((y_pred - y_train[i])**2)  # Error del ejemplo
-                self.backward_propagation(X_train[i], y_train[i], loss)
+                self.backward_propagation(X_train[i], y_train[i])
             
             # Calcular errores después de cada época
             train_error = np.mean([
