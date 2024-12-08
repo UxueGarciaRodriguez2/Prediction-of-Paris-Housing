@@ -167,8 +167,8 @@ Dropout is a technique used to reduce overfitting. During training, it randomly 
 In the implementation, dropout is applied during the **forward propagation step**. Neurons are randomly dropped based on the dropout rate, and the remaining activations are adjusted to keep the total contribution balanced.
 
 Experiments were done with dropout rates of **0.2** and **0.3**:
-- **Dropout rate of 0.2:** This value worked well in simpler models (e.g., ID 1, 2, 5). 
-- **Dropout rate of 0.3:** This higher rate (e.g., ID 3, 4, 8) helped reduce overfitting further by making the model use a wider variety of neurons. However, since the network is simple, this value was carefully chosen to avoid dropping too many neurons.
+- **Dropout rate of 0.2:** This value worked well in simpler models (ID 1, 2, 5). 
+- **Dropout rate of 0.3:** This higher rate (ID 3, 4, 8) helped reduce overfitting further by making the model use a wider variety of neurons. However, since the network is simple, this value was carefully chosen to avoid dropping too many neurons.
 
 In general, using a dropout rate of 0.3 provided better results in terms of generalization, as shown by lower MAPE and MAE values in the table.
 
@@ -191,9 +191,9 @@ The following table presents the parameters used during the training of the mode
 | 10 | 4                | 16,16,8,1      | 200        | 0.001         | 0.2      | relu                | leaky_relu                          | 100.42%  | 4989155.2   | 33480321692286.88 | 0      | 0.3     |
 
 
-To improve the evaluation process of the models, **k-fold cross-validation** was implemented. This approach divides the dataset into k equally sized folds, ensuring that every sample in the dataset is used both for training and validation. TO do this, the dataset was divided into k=5 folds for cross-validation. For each fold, the model was trained using k-1 folds and validated on the remaining fold. This process was repeated for all k folds to ensure that every data point was included in the validation set exactly once. 
+To improve the evaluation process of the models, **k-fold cross-validation** was implemented. This approach divides the dataset into k equally sized folds, ensuring that every sample in the dataset is used both for training and validation. To do this, the dataset was divided into k=5 folds for cross-validation. For each fold, the model was trained using k-1 folds and validated on the remaining fold. This process was repeated for all k folds to ensure that every data point was included in the validation set exactly once. 
 
-To evaluate the performance of different models using k-fold cross-validation, the following table summarizes the results for each model. Most models used 5 folds (k=5), while Model 2 used 3 folds (k=3) due to issues with gradient explosion that caused error values to spike. In these cases, using a smaller k helped prevent the instability and allowed the model to perform more consistently during training.
+To evaluate the performance of different models using k-fold cross-validation, the following table summarizes the results for each model. Most models used 5 folds, while Model 2 used 3 folds due to issues with gradient explosion that caused error values to spike. In these cases, using a smaller k helped prevent the instability and allowed the model to perform more consistently during training.
 
 | Model ID | MSE Mean | MSE Std | MAE Mean | MAE Std | MAPE Mean | MAPE Std | K-Fold |
 |----------|----------|---------|----------|---------|-----------|----------|--------|
@@ -231,8 +231,8 @@ Example of the predictions made by each of the models compared to actual values.
 
 ## Models comparison
 
-### 1. Neural Network using Keras
-To compare the performance of the custom neural network with a more traditional approach, we implemented a neural network using Keras. The model was trained using the training set, with a validation set provided for monitoring performance during training. The model was trained for 250 epochs, and a batch size of 32 was used.The batch size is an hyperparameter that controls the number of training examples used in one forward/backward pass. The parameters used to train the neural network with which the best results were obtained are presented below:
+### 1. Neural Network using tensorflow
+To compare the performance of the custom neural network with a more traditional approach, a neural network model was implemented using tensorflow. The model was trained using the training set, with a validation set provided for monitoring performance during training. The model was trained for 250 epochs, and a batch size of 32 was used.The batch size is an hyperparameter that controls the number of training examples used in one forward/backward pass. The parameters used to train the neural network with which the best results were obtained are presented below:
 
 - **Architecture:**
   - Input layer: Accepts input features with shape `(df_train_x.shape[1],)`
@@ -244,7 +244,7 @@ To compare the performance of the custom neural network with a more traditional 
 - **Loss Function:** Mean Squared Error (MSE)
 
 ### 2. Multi Lineal Regression
-Aso, a linear regression model was implemented using scikit-learn model, this model directly fits the input features to the target variable. During this step, the algorithm minimizes the mean squared error (MSE) between the predicted values and the actual target values.
+Also, a linear regression model was implemented using scikit-learn model, this model directly fits the input features to the target variable. During this step, the algorithm minimizes the mean squared error (MSE) between the predicted values and the actual target values.
 
 A key advantage of this model is its easy interpretability. It assumes a linear relationship between the features and the target variable, with the coefficients providing insight into the contribution of each feature to the prediction. For example, in this linear model, the feature 'haspool' has the highest coefficient, indicating that it has the greatest influence on the final prediction.
 
