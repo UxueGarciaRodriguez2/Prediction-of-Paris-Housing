@@ -10,7 +10,7 @@ This document will describe the processes followed, the results obtained, the co
 
 2. **Project Structure**  
      - `Data_Procesing.ipynb`: Exploratory Data Analysis to understand the dataset's features, clean the data, and perform initial visualizations.  An extended explanation of the methods used can be found in the Data Processing notebook.  
-     - `BP_implementation.ipynb`: Implementation of a neural network from scratch, with a detailed explanation of each component (weight initialization, activations, backpropagation, etc.).  
+     - `BP_implementation.ipynb`: Implementation of a neural network from scratch 
      - `NeuralN.ipynb`: Implementation of a neural network using the **tensorflow** library for comparison purposes.  
      - `MLR.ipynb`: Implementation of a multiple linear regression model for performance comparison.  
    
@@ -208,6 +208,8 @@ To evaluate the performance of different models using k-fold cross-validation, t
 | 9        | 0.3298   | 0.0039  | 0.4976   | 0.0026  | nan       | nan      | 5      |
 | 10       | 0.3339   | 0.0014  | 0.5017   | 0.0023  | nan       | nan      | 5      |
 
+Based on the data, Model ID 9 demonstrates the best generalization performance to unseen data. It achieves the lowest MSE Mean (0.3298), indicating it makes the most accurate predictions on average. Additionally, it has the smallest MSE Std (0.0039), suggesting it is consistent and stable across different folds in the cross-validation process. This aligns with the results observed in the earlier table, which measured the performance of each model on the test data.
+
 
 #### Visualizing Model Performance
 To better understand the behavior and performance of the models during training and evaluation, the following visualizations are included:
@@ -220,6 +222,7 @@ The first set of images shows the evolution of the loss function in both train a
 | ![Loss Model ID  6 ](Results/model6.png) | ![Loss Model ID  8](Results/model8.png) | ![Loss Model ID  9](Results/model9.png) |
 
 **2. Test Results**
+Example of the predictions made by each of the models compared to actual values.
 
 | Model ID  6               | Model ID  8               | Model ID  9               |
 |------------------------|-----------------------|-----------------------|
@@ -263,6 +266,9 @@ The following plot compares the actual vs predicted values. The closer the data 
 
 ## Conclusions
 
+In the first model, where the neural network was implemented from scratch, the results showed that the backpropagation algorithm did not work properly. Across different experiments, the loss values increased instead of decreasing, indicating that the model was not learning. The network had significant problems with convergence and often suffered from exploding gradients, especially when using a high number of neurons. Additionally, the weight initialization had to be adjusted, as improper initialization caused the error to remain constant, showing no improvement during training. Overall, this implementation faced serious challenges in achieving reliable results.
+
+When comparing the models, the multiple linear regression (MLR) model performed better than both the TensorFlow neural network and the neural network implemented from scratch. The MLR model had the smallest errors, was easier to implement, and required less computational effort. This could be because the dataset was relatively simple, meaning a straightforward model like MLR was sufficient to capture the relationships in the data. On the other hand, while the TensorFlow neural network provided reasonable predictions, it was more complex to implement and did not perform better than the simpler MLR model.
 
 
 
